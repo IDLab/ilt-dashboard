@@ -10,5 +10,4 @@ environment/
 .vscode
 
 # Data folder
-data/*.csv
-data/*.json
+data/kvk.csv

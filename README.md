@@ -33,7 +33,7 @@ source environment/bin/activate
 pip install -r requirements
 ```
 
-4. Provide database information in `database.py`. Or make sure that `DBUSER`, `DBPASS`, `HOST` and `DB` contains resp. the username, password, URL and database  of the SQL server. This can be done by placing the following snippet in `~/.bash_aliases`.
+4. Provide database information in `connect_database.py`. Or make sure that the environmental variables `DBUSER`, `DBPASS`, `HOST`, `DB`, `TOKEN` contain resp. the username, password, URL, database name of the SQL server, while the `TOKEN` should be obtained at https://docs.mapbox.com/help/glossary/access-token. The token is used to draw the map.
 ```bash
 export HOST='mysql.liacs.leidenuniv.nl'
 export DBUSER='bruingjde'

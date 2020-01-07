@@ -1,4 +1,3 @@
-# Just run `python import_CSV_to_db.py [CSVfilename.csv]' and this script will import `CSVfilename.csv' into the database
 """
 This program will import the csv file into the database (see database.py).
 
@@ -9,11 +8,10 @@ environment variables as mentioned in that file.)
 import argparse
 import json
 import math
-import os.path
+import os
 import sys
 
 import mysql.connector
-from getpass import getpass
 import pandas as pd
 
 # Read arguments
@@ -25,7 +23,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 # own import from database.py
-from database import cnx
+from connect_database import cnx
 
 mysql_types = {
 	"int": "INT",
@@ -89,7 +87,7 @@ createStmt += ");"
 cursor.execute("DROP TABLE IF EXISTS `" + tableName + "`;")
 cursor.execute(createStmt)
 
-for index, row in df.iterrows():
+for _, row in df.iterrows():
 	insertStmt = "INSERT INTO `" + tableName + "` ("
 
 	# place all column names in insert statement, with a ',' as delimiter

@@ -1,8 +1,12 @@
-# Last edit: 17-Dec-19 16:55
+"""
+This script is the running process of the server providing the dashboard.
+"""
 
+import argparse
 import csv
 import io
 import json
+import os
 
 import dash
 import dash_table
@@ -13,64 +17,50 @@ import flask
 import pandas as pd
 
 # own imports
-from database import cnx
+from connect_database import cnx
 
-try:
-	mapbox_access_token = open("mapboxtoken.txt").read()
-except:
-	print ("The mapbox access token could not be read")
-	exit()
+mapbox_access_token = os.environ['TOKEN']
 
-try:
-	tb_name = open("tb_name.txt").read()
-	tb_name = tb_name.rstrip()
-except:
-	print ("The database name could not be read")
-	exit()
+# Read arguments
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('specification_file', help="Specification file to read in.")
+args = parser.parse_args()
+table_name = args["specification_file"].str.split('/')[-1].split('.')[0]
 
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
 try:
-	dfAll = pd.read_sql("(SELECT * FROM " + tb_name + " LEFT JOIN SBI_names ON " + tb_name + ".SBI = SBI_names.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
+	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN SBI_names ON " + table_name + ".SBI = SBI_names.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
 except IOError:
-	print("Database does not exists or is empty")
-	exit()
-
-# Default view show all datapoints
-df = dfAll
+	raise Exception("Database does not exists or is empty.")
 
 # Make a list of cities for the dropdown menu
 try:
-	steden = pd.read_sql("SELECT distinct City FROM " + tb_name + " ORDER BY City;", con=cnx)
+	steden = pd.read_sql("SELECT distinct City FROM " + table_name + " ORDER BY City;", con=cnx)
 except IOError:
-	print("Database does not exists or is empty")
-	exit()
+	raise("Database does not exists or is empty")
 
 steden = steden["City"]
 
 # Make a list of SBI numbers for the dropdown menu
-SBIs = pd.read_sql("SELECT distinct SBI FROM " + tb_name + " ORDER BY SBI;", con=cnx)
+SBIs = pd.read_sql("SELECT distinct SBI FROM " + table_name + " ORDER BY SBI;", con=cnx)
 SBIs = SBIs["SBI"]
 
 app = dash.Dash()
 
-
 # read configfile for tooltip
-configName = tb_name + ".specification.json"
 try:
-	with open(configName, 'r') as confFile:
+	with open(args["specification_file"]) as confFile:
 			specTooltip=confFile.read()
 except:
-	print("Failed to load configuration file")
-	exit()
+	raise Exception("Failed to load configuration file")
 
 specTooltip = json.loads(specTooltip)
 
 try:
 	specTooltip = specTooltip["tooltip"]
 except:
-	print("Failed to load tooltip configuration")
-	exit()
+	raise("Failed to load tooltip configuration")
 
 print(specTooltip)
 
@@ -79,7 +69,6 @@ def tooltip(df):
     text  = ""
     for field in specTooltip:
         text = text + field + ": " + df[field] + "<br />"
-
     return text
 
 app.layout = html.Div([
@@ -192,7 +181,7 @@ def download_csv():
 
 
 def CreateQuery(city_value, sbi):
-    query = "SELECT * FROM " + tb_name + " "
+    query = "SELECT * FROM " + table_name + " "
 
     if city_value != None or sbi != None:
         query += "WHERE "
