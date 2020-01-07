@@ -1,17 +1,16 @@
-# Compile using python KvK_map.py
 # Last edit: 17-Dec-19 16:55
 
-import pandas as pd
 import csv
+import io
+import json
+
 import dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from flask import request
-import json
 import flask
-import io
+import pandas as pd
 
 # own imports
 from database import cnx
