@@ -34,13 +34,6 @@ mysql_types = {
 	"shortstring": "VARCHAR(50)"
 }
 
-# check whether an argument is passed to the script
-# arguments = len(sys.argv) - 1
-
-# if arguments != 1:
-#     print ("Call file with \"python import_CSV_to_db.py nameofCSVfile\"")
-#     sys.exit()
-
 # establish connection with the database
 cursor = cnx.cursor()
 
