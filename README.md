@@ -18,9 +18,13 @@ Linux server that runs:
 
 ### Installing
 
-1. Download the example files used to demonstrate the functionality of this dashboard at http://gerritjandebruin.nl/dashboard and place them in the data folder.
+1. Make sure that you have in `data/` two files: a .csv containing the data and a .specification.json. An example of the latter is provided in `data/kvk.specification.json`. Here we provide the md5sum for the demonstration files.
 ```bash
-wget -P data/ http://gerritjandebruin.nl/dashboard/kvk.csv http://gerritjandebruin.nl/dashboard/kvk.specification.json
+$ md5sum data/*
+a52284c681ee95173b3ffcf09e4766fb  data/kvk.csv
+7a01b92170423689efe17cb64456804f  data/kvk.specification.json
+a3e624961f98507b28887946636aa9d3  data/sbi_names.csv
+8e33af7f036420dacd955d4d8d34ee44  data/sbi_names.specification.json
 ```
 2. Create a virtual python environment (make sure that Python >= 3.3).
 ```bash
@@ -35,22 +39,18 @@ pip install -r requirements
 
 4. Provide database information in `connect_database.py`. Or make sure that the environmental variables `DBUSER`, `DBPASS`, `HOST`, `DB`, `TOKEN` contain resp. the username, password, URL, database name of the SQL server, while the `TOKEN` should be obtained at https://docs.mapbox.com/help/glossary/access-token. The token is used to draw the map.
 ```bash
-export HOST='mysql.liacs.leidenuniv.nl'
+echo "export HOST='mysql.liacs.leidenuniv.nl'
 export DBUSER='bruingjde'
 export DBPASS=''
 export DB='bruingjde'
+export TOKEN=''" >> ~/.bash_aliases
 ```
 
-5. Import the csv-file to the server.
+5. Import the csv-files to the server.
 ```bash
-python import_CSV_to_db.py data/kvk.csv data/kvk.specification.json 
+python upload_database.py data/kvk.csv data/kvk.specification.json 
+python upload_database.py data/sbi_names.csv data/sbi_names.specification.json
 ```
-
-## Running the tests
-*This section still needs to be written.*
-
-## Built with
-*This section still needs to be written.*
 
 ## Contributions
 ### Authors
