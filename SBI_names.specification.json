@@ -1,0 +1,17 @@
+{
+	"columns": [
+		{
+			"name": "SBI",
+			"column": ["SBI", "shortstring"]
+		}, {
+			"name": "Description",
+			"column": ["Omschrijving", "string"]
+		}
+	],
+	"indexes": [
+		{
+			"type": "primary",
+			"columns": ["SBI"]
+		}
+	]
+}

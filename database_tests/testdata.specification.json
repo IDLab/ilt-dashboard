@@ -1,0 +1,35 @@
+{
+	"columns": [
+		{
+			"name": "Identity",
+			"column": ["Id", "int"]
+		}, {
+			"name": "Company",
+			"column": ["Bedrijf", "string"]
+		}, {
+			"name": "City",
+			"column": ["Stad", "string"]
+		}, {
+			"name": "Employees",
+			"column": ["Werknemers", "int"]
+		}, {
+			"name": "Latitude",
+			"column": ["lat", "float"]
+		}, {
+			"name": "Longitude",
+			"column": ["lon", "float"]
+		}
+	],
+	"indexes": [
+		{
+			"type": "primary",
+			"columns": ["Identity"]
+		}, {
+			"type": "normal",
+			"columns": ["Company", "City"]
+		}, {
+			"type": "coords",
+			"columns": ["Latitude", "Longitude"]
+		}
+	]
+}
