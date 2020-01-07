@@ -1,10 +1,13 @@
+import os
+
 import mysql.connector
 
+# Try to read environment variables. Otherwise, replace by hand.
 try:
 	cnx = mysql.connector.connect(
-    user='', password='',
-    host='',
-    database='')
+    user=os.environ['DATABASEUSER'], 
+    password=os.environ['DATABASEPASSWD'],
+    host=os.environ['HOST'],
+    database=os.environ['DATABASE'])
 except:
-	print("Connection could not be established")
-	exit()
+	raise Exception("Connection could not be established")
