@@ -9,12 +9,42 @@ We provided the [studentteam](#authors) with the following additional wishes:
 - Ideas on how to visualize data and insights are appreciated.
 
 ## Getting started
-*This section still needs to be written.* There is a [documentation](documentation.md) provided by the student team.
+*This section still needs to be written.* There is a [documentation file](documentation.md) provided by the student team.
 
 ### Prerequisites
-1. Download the example files used to demonstrate the functionality of this dashboard at http://gerritjandebruin.nl/dashboard.
+Linux server that runs:
+- SQL database
+- Python 3.3 or later
 
 ### Installing
+
+1. Download the example files used to demonstrate the functionality of this dashboard at http://gerritjandebruin.nl/dashboard and place them in the data folder.
+```bash
+wget -P data/ http://gerritjandebruin.nl/dashboard/kvk.csv http://gerritjandebruin.nl/dashboard/kvk.specification.json
+```
+2. Create a virtual python environment (make sure that Python >= 3.3).
+```bash
+python3 -m venv environment
+source environment/bin/activate
+```
+
+3. Install required packages from `requirements.txt`.
+```bash
+pip install -r requirements
+```
+
+4. Provide database information in `database.py`. Or make sure that `DBUSER`, `DBPASS`, `HOST` and `DB` contains resp. the username, password, URL and database  of the SQL server. This can be done by placing the following snippet in `~/.bash_aliases`.
+```bash
+export HOST='mysql.liacs.leidenuniv.nl'
+export DBUSER='bruingjde'
+export DBPASS=''
+export DB='bruingjde'
+```
+
+5. Import the csv-file to the server.
+```bash
+python import_CSV_to_db.py data/kvk.csv data/kvk.specification.json 
+```
 
 ## Running the tests
 *This section still needs to be written.*

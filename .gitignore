@@ -8,3 +8,7 @@ environment/
 
 # Visual studio code mess
 .vscode
+
+# Data folder
+data/*.csv
+data/*.json
