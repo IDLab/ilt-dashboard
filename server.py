@@ -207,7 +207,7 @@ def CreateQuery(city_value, sbi):
 def update_map(city_value, sbi):
     global df
     # Generate query
-    query = "SELECT KvK_Locaties_SEProjectLIACS.*, sbi.Description FROM KvK_Locaties_SEProjectLIACS LEFT JOIN SBI ON kvk.SBI = sbi.SBI "
+    query = "SELECT kvk.*, sbi.Description FROM kvk LEFT JOIN SBI ON kvk.SBI = sbi.SBI "
     # What to filter
     params = {
         "cn": city_value,
