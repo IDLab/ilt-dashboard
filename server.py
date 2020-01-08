@@ -25,7 +25,7 @@ mapbox_access_token = os.environ['TOKEN']
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('specification_file', help="Specification file to read in.")
 args = parser.parse_args()
-table_name = args["specification_file"].str.split('/')[-1].split('.')[0]
+table_name = args.specification_file.split('/')[-1].split('.')[0]
 
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
@@ -50,7 +50,7 @@ app = dash.Dash()
 
 # read configfile for tooltip
 try:
-	with open(args["specification_file"]) as confFile:
+	with open(args.specification_file) as confFile:
 			specTooltip=confFile.read()
 except:
 	raise Exception("Failed to load configuration file")
