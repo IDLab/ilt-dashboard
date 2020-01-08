@@ -46,7 +46,8 @@ export DB='bruingjde'
 export TOKEN=''" >> ~/.bash_aliases
 ```
 
-5. Import the csv-files to the server.
+5. Import the csv-files to the server. 
+:warning: **This can take up to a day.**
 ```bash
 python upload_database.py data/kvk.csv data/kvk.specification.json 
 python upload_database.py data/sbi_names.csv data/sbi_names.specification.json
