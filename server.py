@@ -1,77 +1,63 @@
-# Compile using python KvK_map.py
-# Last edit: 17-Dec-19 16:55
+"""
+This script is the running process of the server providing the dashboard.
+"""
 
-import pandas as pd
+import argparse
 import csv
+import importlib
+import io
+import json
+import os
+
 import dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from flask import request
-import json
 import flask
-import io
+import pandas as pd
 
 # own imports
-from database import cnx
+import connect_database
 
-try:
-	mapbox_access_token = open("mapboxtoken.txt").read()
-except:
-	print ("The mapbox access token could not be read")
-	exit()
+mapbox_access_token = os.environ['TOKEN']
 
-try:
-	tb_name = open("tb_name.txt").read()
-	tb_name = tb_name.rstrip()
-except:
-	print ("The database name could not be read")
-	exit()
+kvk_specification_file = "data/kvk.specification.json"
 
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
 try:
-	dfAll = pd.read_sql("(SELECT * FROM " + tb_name + " LEFT JOIN SBI_names ON " + tb_name + ".SBI = SBI_names.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
+	df = pd.read_sql("(SELECT * FROM kvk LEFT JOIN sbi ON kvk.SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=connect_database.cnx)
 except IOError:
-	print("Database does not exists or is empty")
-	exit()
-
-# Default view show all datapoints
-df = dfAll
+	raise Exception("Database does not exists or is empty.")
 
 # Make a list of cities for the dropdown menu
 try:
-	steden = pd.read_sql("SELECT distinct City FROM " + tb_name + " ORDER BY City;", con=cnx)
+	steden = pd.read_sql("SELECT distinct City FROM kvk ORDER BY City;", con=connect_database.cnx)
 except IOError:
-	print("Database does not exists or is empty")
-	exit()
+	raise("Database does not exists or is empty")
 
 steden = steden["City"]
 
 # Make a list of SBI numbers for the dropdown menu
-SBIs = pd.read_sql("SELECT distinct SBI FROM " + tb_name + " ORDER BY SBI;", con=cnx)
+SBIs = pd.read_sql("SELECT distinct SBI FROM kvk ORDER BY SBI;", con=connect_database.cnx)
 SBIs = SBIs["SBI"]
 
 app = dash.Dash()
 
-
 # read configfile for tooltip
-configName = tb_name + ".specification.json"
 try:
-	with open(configName, 'r') as confFile:
-			specTooltip=confFile.read()
+	with open(kvk_specification_file) as file:
+		specTooltip=file.read()
 except:
-	print("Failed to load configuration file")
-	exit()
+	raise Exception("Failed to load configuration file")
 
 specTooltip = json.loads(specTooltip)
 
 try:
 	specTooltip = specTooltip["tooltip"]
 except:
-	print("Failed to load tooltip configuration")
-	exit()
+	raise("Failed to load tooltip configuration")
 
 print(specTooltip)
 
@@ -80,7 +66,6 @@ def tooltip(df):
     text  = ""
     for field in specTooltip:
         text = text + field + ": " + df[field] + "<br />"
-
     return text
 
 app.layout = html.Div([
@@ -188,12 +173,12 @@ def download_csv():
     }
     query = CreateQuery(city, SBI)
 
-    df = pd.read_sql(query, con=cnx, params=params)
+    df = pd.read_sql(query, con=connect_database.cnx, params=params)
     return df.to_string(), 200, {'Content-type': 'text/csv'}
 
 
 def CreateQuery(city_value, sbi):
-    query = "SELECT * FROM " + tb_name + " "
+    query = "SELECT * FROM kvk "
 
     if city_value != None or sbi != None:
         query += "WHERE "
@@ -219,7 +204,7 @@ def CreateQuery(city_value, sbi):
 def update_map(city_value, sbi):
     global df
     # Generate query
-    query = "SELECT KvK_Locaties_SEProjectLIACS.*, SBI_names.Description FROM KvK_Locaties_SEProjectLIACS LEFT JOIN SBI_names ON KvK_Locaties_SEProjectLIACS.SBI = SBI_names.SBI "
+    query = "SELECT kvk.*, sbi.Description FROM kvk LEFT JOIN sbi ON kvk.SBI = sbi.SBI "
     # What to filter
     params = {
         "cn": city_value,
@@ -233,7 +218,7 @@ def update_map(city_value, sbi):
     #  If we have a where clause, which constraints do we need to add?
     constraints = [
         "City=%(cn)s " if city_value != None else None,
-        "KvK_Locaties_SEProjectLIACS.SBI=%(sbi)s " if sbi != None else None
+        "kvk.SBI=%(sbi)s " if sbi != None else None
     ]
 
     # Add constraints to query
@@ -242,7 +227,8 @@ def update_map(city_value, sbi):
     # Give a random ordering
     query += "ORDER BY RAND() LIMIT 10000;"
 
-    df = pd.read_sql(query, con=cnx, params=params)
+    importlib.reload(connect_database)
+    df = pd.read_sql(query, con=connect_database.cnx, params=params)
     if len(df) == 0:
         df = dfAll
 

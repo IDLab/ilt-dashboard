@@ -1,64 +1,78 @@
-# Code reusability
-The code was made in the mindset that it can be broken apart and reused as well as having lots of option to change the behaviour of the program with little to no change to the initial code. For that reason we made several config files to be altered to adjust the program.
+# Dashboard for spatial datasets
+This repository provides the code made by [Software Engineering](https://studiegids.universiteitleiden.nl/en/courses/85177/software-engineering) students. The goal was to make a dashboard framework in Python, which allows the [Human Environmental and Transport Inspectorate (ILT)](https://www.ilent.nl/).
 
-## Database Config
-In the json file with as name CSV.specification.json you can define the data stored in the database by naming and defining the data type of each column in the database. The types INT, FLOAT, or STRING may be chosen at this time.
-Additionally the database may be indexed to increase efficiency of filter actions by specifying a set of columns to index by. Such as streetname and house number to index by address. It is important that this is configured before you upload the database as the filtering of the database without this option is much slower.
+We provided the [studentteam](#authors) with the following additional wishes:
+- Code written as universal/ modular as possible: we would be happy to re-use the set-up for future projects and to ensure consistency between different plots/visualizations within a dashboard.
+- If possible, we would like to be able to exchange the code for re-use on other platforms (mainly R) with as little changes in the code as necessary.
+- Take into account computational efficiency of loading, filtering, and rendering plots and tables , especially when it comes to the inclusion of several ‘heavy’ geo-plots.
+- Include calls for data from PostGres/ PostGIS to support both computational efficiency as well as inclusion of automatically updated data sources.
+- Ideas on how to visualize data and insights are appreciated.
 
-As of now the config also contains a separate entry to configure the tooltip so that different attributes are shown when you hover the mousecursor over the data points.
+## Getting started
+*This section still needs to be written.* There is a [documentation file](documentation.md) provided by the student team.
 
-## tb\_name.txt and mapboxtoken.txt
-The mapboxtoken.txt and tb\_name.txt contain information about the currently used mapbox, the map that is shown, and the table name used from the database. These files only consist of one line, but are used throughout the program. Without these files you would have to change several lines to change the name of the database and a long line for the mapboxtoken which looks ugly in the initial code.
+### Prerequisites
+Linux server that runs:
+- SQL database
+- Python 3.3 or later
 
-## Example data
-The program was made to function well with the example dataset:
-https://surfdrive.surf.nl/files/index.php/s/8C7TsZmoTUCZqXN
+### Installing
 
-# Programming language used
-The programming language is most likely the most important choice because it is the core foundation of the program and converting code from one language to another can be time consuming.
-The most important deciding factor was the performance of the language.
-We limited the potential programming languages to Python and R because these two languages where strongly preferred.
-## Used Python
-Python is similar to R and is a very abstract language so programming in it is not that difficult. This choice was made because it is faster than most abstract languages and has a big variety in packages available to use.
+1. Make sure that you have in `data/` two files: a .csv containing the data and a .specification.json. An example of the latter is provided in `data/kvk.specification.json`. Here we provide the md5sum for the demonstration files.
+```bash
+$ md5sum data/*
+a52284c681ee95173b3ffcf09e4766fb  data/kvk.csv
+7a01b92170423689efe17cb64456804f  data/kvk.specification.json
+a3e624961f98507b28887946636aa9d3  data/sbi_names.csv
+8e33af7f036420dacd955d4d8d34ee44  data/sbi_names.specification.json
+```
+2. Create a virtual python environment (make sure that Python >= 3.3).
+```bash
+python3 -m venv environment
+source environment/bin/activate
+```
 
-## Considered R
-R is considered but nobody in the group has experience in R and we discovered that in most cases R is slower than python. R is a statistical language made for processing data, but because of the higher difficulty and possible slow performance we did not choose R.
+3. Install required packages from `requirements.txt`.
+```bash
+pip install -r requirements
+```
 
-## Others
-Most other languages have a bigger learning curve or nobody in the group has any experience in the language at all. As going to a language with an extremely high learning curve was not preferred, we did not consider other languages even if they would be potentially faster
-# Packages used
-These are the python packages used for the program with reasons for using them followed by rejected alternatives:
+4. Provide database information in `connect_database.py`. Or make sure that the environmental variables `DBUSER`, `DBPASS`, `HOST`, `DB`, `TOKEN` contain resp. the username, password, URL, database name of the SQL server, while the `TOKEN` should be obtained at https://docs.mapbox.com/help/glossary/access-token. The token is used to draw the map.
+```bash
+echo "export HOST='mysql.liacs.leidenuniv.nl'
+export DBUSER='bruingjde'
+export DBPASS=''
+export DB='bruingjde'
+export TOKEN=''" >> ~/.bash_aliases
+```
 
-## Map generator
-Used for communication between the user and the server. For example the filtermenu.
+5. Import the csv-files to the server. 
+:warning: **This can take up to a day.**
+```bash
+python upload_database.py data/kvk.csv data/kvk.specification.json 
+python upload_database.py data/sbi_names.csv data/sbi_names.specification.json
+```
 
-### Used Dash
-Dash is an open source package with the focus on performance which is one of the main points of the program. Most of the main functionalities were also present in the package and the website itself provided several nice examples which made us make this choice.
+6. Run the server!
+```bash
+python server.py
+```
 
-#### Plotly
-As a part of Dash, it renders the map and data points. This is one of the most important aspects of dash because this will be responsible for rendering the map and placing down the data points from the .csv files.
+7. Open http://localhost:8050 in a webbrowser.
+![Screenshot](screenshot.JPG)
 
-### Considered Folium
-Because Folium has similar functionalities as Dash and is also open source this package was a valid alternative for Dash. After some research we discoverd that Folium has a focus on good-looking visualization but lacks in performance. Because we want to use lots of data and the visual advantage was not significant enough we chose for Dash rather than Folium.
+## Contributions
+### Authors
+- Mark Kompier
+- Richard Hoogduin
+- Rogier van den Burgh
+- [Romke Bak](https://nl.linkedin.com/in/romke-bak-00000a135)
+- [Stijn Boere](https://home.strw.leidenuniv.nl/~boere/)
 
-### Considered Leaflet
-Leaflet was recommended to us and for that reason we did some investigating in what it had to offer. After some searching it became clear this is an JavaScrip application instead of working together with python. Because JavaScript is more difficult than python and Dash and Folium were also working options we did not use Leaflet.
+### Supervision
+- [Noortje Groot](https://nl.linkedin.com/in/noortjegroot)
+- [Gerben van Baren](https://nl.linkedin.com/in/gerben-van-baren-5805554)
+- [Gerrit-Jan de Bruin](http://gerritjandebruin.nl/)
 
-### Used MySQL-connector-python
-We use the MySQL connector for python to connect to the MySQL database. This is one of few packages able to connect to a MySQL server and was for that reason used. More explaining about the choice for MySQL can be found under the header Database.
-
-### Used Pandas
-Used to execute MySQL queries and read the results. Also used to write CSV files for export. Again there are not many choices for this application so the decision was easy.
-
-# Database
-Because the data used is very large and loading all of it in makes the program really slow we decided to use a database to help with the storage of all the points as well as give a significant speedup for the filtering.
-Again we list the reasoning behind choosing MySQL and the rejected alternatives:
-
-## Used MySQL
-MySQL is an application that can run a database for a server and is specialized in fast read instructions with simple conditions, so filtering for a specific city is really fast for MySQL with the correct configuration. It is also the most used database system currenctly so most questions about the database are already answered on internet.
-
-## Considered PostgreSQL
-PostgreSQL was also considered as it is the second most used database system. This database is fast for writes, in particular writes that from users which may or may not contain invalid data that should be handeled correctly. Because the database is not often updated and these optimizations slowed down the read operations the database was not used in the final project.
-
-## Considered CockroachDB
-CockroachDB was also an options since it is open source and also has an focus on MySQL. The database system is very reliable which was their most important attribute, but it is used less and the many copies of the database to ensure its reliability took a cut out of its performance which was our most important goal. For that reason this option was rejected.
+## License
+*We did not decide yet.*

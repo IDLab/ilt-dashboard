@@ -1,4 +1,13 @@
-KvK_Locaties_SEProjectLIACS.csv
-railways.dbf
-*.swp
-/__pycache__
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+environment/
+
+# Visual studio code mess
+.vscode
+
+# Data folder
+data/kvk.csv

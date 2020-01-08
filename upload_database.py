@@ -1,16 +1,29 @@
-# Just run `python import_CSV_to_db.py [CSVfilename.csv]' and this script will import `CSVfilename.csv' into the database
+"""
+This program will import the csv file into the database (see database.py).
 
+Please provide first credentials for the server in database.py (or in the 
+environment variables as mentioned in that file.)
+"""
 
-import mysql.connector
-from getpass import getpass
-import pandas as pd
+import argparse
 import json
 import math
+import os
 import sys
-import os.path
+
+import mysql.connector
+import pandas as pd
+
+# Read arguments
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('csv_file', help="CSV file to read in.")
+parser.add_argument(
+	'specification_file', help="Specification file to read in."
+)
+args = parser.parse_args()
 
 # own import from database.py
-from database import cnx
+from connect_database import cnx
 
 mysql_types = {
 	"int": "INT",
@@ -19,37 +32,26 @@ mysql_types = {
 	"shortstring": "VARCHAR(50)"
 }
 
-
-# check whether an argument is passed to the script
-arguments = len(sys.argv) - 1
-
-if arguments != 1:
-    print ("Call file with \"python import_CSV_to_db.py nameofCSVfile\"")
-    sys.exit()
-
-
 # establish connection with the database
 cursor = cnx.cursor()
 
 # read input name from argument
-inputName = sys.argv[1]
+inputName = args.csv_file
 
 # check for existence input file exit if not found
 if not os.path.isfile(inputName):
     print ("Inputfile: " + inputName + " not found!")
     sys.exit()
 
-# generate name of config file
-tableName = inputName.split(".")[0]
-configName = tableName + ".specification.json"
-
+# generate name of table
+tableName = inputName.split("/")[-1].split(".")[0]
 
 # read configfile exit if not found
 try:
-    with open(configName, 'r') as confFile:
+    with open(args.specification_file) as confFile:
         data=confFile.read()
 except IOError:
-    print ("Configfile: " + configName + " not found!")
+    print ("Configfile: " + args.specification_file + " not found!")
     sys.exit()
 
 spec = json.loads(data)
@@ -57,8 +59,7 @@ spec = json.loads(data)
 # read the data from the CSV file
 df = pd.read_csv(inputName, encoding = "ISO-8859-1", dtype={'SBI': str})
 
-
-
+# Create statement
 createStmt = "CREATE TABLE `" + tableName + "` ("
 # for col in df.columns: 
 # 	createStmt += "`" + col + "`" + " VARCHAR(100), "
@@ -86,7 +87,7 @@ createStmt += ");"
 cursor.execute("DROP TABLE IF EXISTS `" + tableName + "`;")
 cursor.execute(createStmt)
 
-for index, row in df.iterrows():
+for _, row in df.iterrows():
 	insertStmt = "INSERT INTO `" + tableName + "` ("
 
 	# place all column names in insert statement, with a ',' as delimiter
