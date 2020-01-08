@@ -4,6 +4,7 @@ This script is the running process of the server providing the dashboard.
 
 import argparse
 import csv
+import importlib
 import io
 import json
 import os
@@ -17,7 +18,7 @@ import flask
 import pandas as pd
 
 # own imports
-from connect_database import cnx
+import connect_database
 
 mapbox_access_token = os.environ['TOKEN']
 
@@ -36,14 +37,14 @@ except IOError:
 
 # Make a list of cities for the dropdown menu
 try:
-	steden = pd.read_sql("SELECT distinct City FROM " + table_name + " ORDER BY City;", con=cnx)
+	steden = pd.read_sql("SELECT distinct City FROM " + table_name + " ORDER BY City;", con=connect_database.cnx)
 except IOError:
 	raise("Database does not exists or is empty")
 
 steden = steden["City"]
 
 # Make a list of SBI numbers for the dropdown menu
-SBIs = pd.read_sql("SELECT distinct SBI FROM " + table_name + " ORDER BY SBI;", con=cnx)
+SBIs = pd.read_sql("SELECT distinct SBI FROM " + table_name + " ORDER BY SBI;", con=connect_database.cnx)
 SBIs = SBIs["SBI"]
 
 app = dash.Dash()
@@ -176,7 +177,7 @@ def download_csv():
     }
     query = CreateQuery(city, SBI)
 
-    df = pd.read_sql(query, con=cnx, params=params)
+    df = pd.read_sql(query, con=connect_database.cnx, params=params)
     return df.to_string(), 200, {'Content-type': 'text/csv'}
 
 
@@ -230,7 +231,8 @@ def update_map(city_value, sbi):
     # Give a random ordering
     query += "ORDER BY RAND() LIMIT 10000;"
 
-    df = pd.read_sql(query, con=cnx, params=params)
+    importlib.reload(connect_database)
+    df = pd.read_sql(query, con=connect_database.cnx, params=params)
     if len(df) == 0:
         df = dfAll
 
