@@ -22,37 +22,33 @@ import connect_database
 
 mapbox_access_token = os.environ['TOKEN']
 
-# Read arguments
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('specification_file', help="Specification file to read in.")
-args = parser.parse_args()
-table_name = args.specification_file.split('/')[-1].split('.')[0]
+kvk_specification_file = "data/kvk.specification.json"
 
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
 try:
-	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN sbi ON " + table_name + ".SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=connect_database.cnx)
+	df = pd.read_sql("(SELECT * FROM kvk LEFT JOIN sbi ON kvk.SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=connect_database.cnx)
 except IOError:
 	raise Exception("Database does not exists or is empty.")
 
 # Make a list of cities for the dropdown menu
 try:
-	steden = pd.read_sql("SELECT distinct City FROM " + table_name + " ORDER BY City;", con=connect_database.cnx)
+	steden = pd.read_sql("SELECT distinct City FROM kvk ORDER BY City;", con=connect_database.cnx)
 except IOError:
 	raise("Database does not exists or is empty")
 
 steden = steden["City"]
 
 # Make a list of SBI numbers for the dropdown menu
-SBIs = pd.read_sql("SELECT distinct SBI FROM " + table_name + " ORDER BY SBI;", con=connect_database.cnx)
+SBIs = pd.read_sql("SELECT distinct SBI FROM kvk ORDER BY SBI;", con=connect_database.cnx)
 SBIs = SBIs["SBI"]
 
 app = dash.Dash()
 
 # read configfile for tooltip
 try:
-	with open(args.specification_file) as confFile:
-			specTooltip=confFile.read()
+	with open(kvk_specification_file) as file:
+		specTooltip=file.read()
 except:
 	raise Exception("Failed to load configuration file")
 
@@ -182,7 +178,7 @@ def download_csv():
 
 
 def CreateQuery(city_value, sbi):
-    query = "SELECT * FROM " + table_name + " "
+    query = "SELECT * FROM kvk "
 
     if city_value != None or sbi != None:
         query += "WHERE "
