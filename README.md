@@ -59,6 +59,7 @@ python server.py
 ```
 
 7. Open http://localhost:8050 in a webbrowser.
+![Screenshot](screenshot.JPG)
 
 ## Contributions
 ### Authors
