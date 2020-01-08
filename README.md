@@ -53,6 +53,13 @@ python upload_database.py data/kvk.csv data/kvk.specification.json
 python upload_database.py data/sbi_names.csv data/sbi_names.specification.json
 ```
 
+6. Run the server!
+```bash
+python server.py
+```
+
+7. Open http://localhost:8050 in a webbrowser.
+
 ## Contributions
 ### Authors
 - Mark Kompier
