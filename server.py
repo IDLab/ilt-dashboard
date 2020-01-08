@@ -31,11 +31,7 @@ table_name = args.specification_file.split('/')[-1].split('.')[0]
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
 try:
-<<<<<<< HEAD
 	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN sbi ON " + table_name + ".SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=connect_database.cnx)
-=======
-	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN sbi ON " + table_name + ".SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
->>>>>>> 073009afd666057a25a9e7b056f8f60b21c2908d
 except IOError:
 	raise Exception("Database does not exists or is empty.")
 
@@ -212,11 +208,7 @@ def CreateQuery(city_value, sbi):
 def update_map(city_value, sbi):
     global df
     # Generate query
-<<<<<<< HEAD
     query = "SELECT kvk.*, sbi.Description FROM kvk LEFT JOIN sbi ON kvk.SBI = sbi.SBI "
-=======
-    query = "SELECT kvk.*, sbi.Description FROM kvk LEFT JOIN SBI ON kvk.SBI = sbi.SBI "
->>>>>>> 073009afd666057a25a9e7b056f8f60b21c2908d
     # What to filter
     params = {
         "cn": city_value,
