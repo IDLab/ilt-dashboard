@@ -30,7 +30,7 @@ table_name = args.specification_file.split('/')[-1].split('.')[0]
 # Selects all data from KvK_Locaties and add a column `Description' with the corresponding SBI-description
 # currently limited at 10000 to not overload the browser
 try:
-	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN SBI_names ON " + table_name + ".SBI = SBI_names.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
+	df = pd.read_sql("(SELECT * FROM " + table_name + " LEFT JOIN sbi ON " + table_name + ".SBI = sbi.SBI) ORDER BY RAND() LIMIT 10000;", con=cnx)
 except IOError:
 	raise Exception("Database does not exists or is empty.")
 
@@ -207,7 +207,7 @@ def CreateQuery(city_value, sbi):
 def update_map(city_value, sbi):
     global df
     # Generate query
-    query = "SELECT KvK_Locaties_SEProjectLIACS.*, SBI_names.Description FROM KvK_Locaties_SEProjectLIACS LEFT JOIN SBI_names ON KvK_Locaties_SEProjectLIACS.SBI = SBI_names.SBI "
+    query = "SELECT KvK_Locaties_SEProjectLIACS.*, sbi.Description FROM KvK_Locaties_SEProjectLIACS LEFT JOIN SBI ON kvk.SBI = sbi.SBI "
     # What to filter
     params = {
         "cn": city_value,
@@ -221,7 +221,7 @@ def update_map(city_value, sbi):
     #  If we have a where clause, which constraints do we need to add?
     constraints = [
         "City=%(cn)s " if city_value != None else None,
-        "KvK_Locaties_SEProjectLIACS.SBI=%(sbi)s " if sbi != None else None
+        "kvk.SBI=%(sbi)s " if sbi != None else None
     ]
 
     # Add constraints to query
