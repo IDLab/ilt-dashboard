@@ -1,6 +1,8 @@
 # Dashboard for spatial datasets
 This repository provides the code made by [Software Engineering](https://studiegids.universiteitleiden.nl/en/courses/85177/software-engineering) students. The goal was to make a dashboard framework in Python, which allows the [Human Environmental and Transport Inspectorate (ILT)](https://www.ilent.nl/).
 
+> :warning: **This repository is archived**: If you intend to use this dashboard, please contact @gerritjandebruin .
+
 We provided the [studentteam](#authors) with the following additional wishes:
 - Code written as universal/ modular as possible: we would be happy to re-use the set-up for future projects and to ensure consistency between different plots/visualizations within a dashboard.
 - If possible, we would like to be able to exchange the code for re-use on other platforms (mainly R) with as little changes in the code as necessary.
